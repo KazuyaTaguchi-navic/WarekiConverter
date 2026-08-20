@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { convertToWareki, generateEraTable } from '../convert.js';
+import { convertToWareki, convertToSeireki, convertEra, generateEraTable } from '../convert.js';
 
 test('全角年月表記を単一の和暦に変換する', () => {
   assert.equal(convertToWareki('２０２４年６月'), 'R6/6');
@@ -35,6 +35,26 @@ test('日付が無い文字列はnullを返す', () => {
 
 test('前後に余分な文字列があっても抽出できる', () => {
   assert.equal(convertToWareki('年式：2007年3月～2024年10月 現在'), 'H19/3～R6/10');
+});
+
+test('和暦(略号)から西暦への逆変換ができる（ユーザー報告の例）', () => {
+  assert.equal(convertToSeireki('R6/6'), '2024/6');
+});
+
+test('和暦の範囲表記から西暦の範囲へ逆変換できる', () => {
+  assert.equal(convertToSeireki('H19/3～R6/10'), '2007/3～2024/10');
+});
+
+test('境界の和暦(S64・H31)も西暦へ逆変換できる', () => {
+  assert.equal(convertToSeireki('S64/1'), '1989/1');
+  assert.equal(convertToSeireki('H31/4'), '2019/4');
+  assert.equal(convertToSeireki('R元'), '2019');
+});
+
+test('convertEraは西暦入力なら和暦へ、和暦入力なら西暦へ変換する', () => {
+  assert.deepEqual(convertEra('2024年6月'), { direction: 'toWareki', result: 'R6/6' });
+  assert.deepEqual(convertEra('R6/6'), { direction: 'toSeireki', result: '2024/6' });
+  assert.equal(convertEra('適合車種一覧'), null);
 });
 
 test('早見表: 境界年は和暦(漢字)・略号ともに2区間を／で結合する', () => {

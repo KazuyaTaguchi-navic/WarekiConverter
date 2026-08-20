@@ -1,4 +1,4 @@
-import { convertToWareki, generateEraTable } from './convert.js';
+import { convertEra, generateEraTable } from './convert.js';
 
 const inputEl = document.getElementById('input-text');
 const outputEl = document.getElementById('output-text');
@@ -37,21 +37,26 @@ async function copyToClipboard(text) {
 
 async function runConversion({ autoCopy }) {
   const source = inputEl.value;
-  const result = convertToWareki(source);
+  const converted = convertEra(source);
 
-  if (!result) {
+  if (!converted) {
     outputEl.value = '';
     setStatus(source.trim() ? '年式らしき文字列が見つかりませんでした' : '', source.trim() ? 'error' : '');
     return;
   }
 
+  const { result, direction } = converted;
+  const directionLabel = direction === 'toSeireki' ? '西暦' : '和暦';
   outputEl.value = result;
 
   if (autoCopy) {
     const copied = await copyToClipboard(result);
-    setStatus(copied ? `コピーしました: ${result}` : `変換しました（コピーは失敗）: ${result}`, copied ? 'success' : 'error');
+    setStatus(
+      copied ? `${directionLabel}に変換してコピーしました: ${result}` : `${directionLabel}に変換しました（コピーは失敗）: ${result}`,
+      copied ? 'success' : 'error',
+    );
   } else {
-    setStatus(`変換しました: ${result}`, 'success');
+    setStatus(`${directionLabel}に変換しました: ${result}`, 'success');
   }
 }
 

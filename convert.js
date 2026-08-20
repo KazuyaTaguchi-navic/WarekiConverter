@@ -96,6 +96,62 @@ export function convertToWareki(rawText) {
   return `${converted[0]}～${converted[converted.length - 1]}`;
 }
 
+// 和暦(S/H/R)表記を検出するためのパターン（例: "R6", "H19/3", "S64", "R元"）。
+// 数字・数字列の前後がアルファベット/数字と連続している場合は誤検出を避ける。
+const WAREKI_PATTERN = /(?<![A-Za-z0-9])[SHR](?:\d{1,2}(?!\d)|元)(?:\/\d{1,2}(?!\d))?/gi;
+
+export function extractWarekiStrings(normalizedText) {
+  return normalizedText.match(WAREKI_PATTERN) || [];
+}
+
+export function parseWarekiString(s) {
+  const m = s.match(/^([SHR])(\d{1,2}|元)(?:\/(\d{1,2}))?$/i);
+  if (!m) return null;
+  return {
+    letter: m[1].toUpperCase(),
+    eraYear: m[2] === '元' ? 1 : Number(m[2]),
+    month: m[3] != null ? Number(m[3]) : undefined,
+  };
+}
+
+// 元号の開始西暦年より1小さい値（西暦年 = offset + 和暦年）
+const ERA_OFFSET = { S: 1925, H: 1988, R: 2018 };
+
+export function eraToSeireki({ letter, eraYear, month }) {
+  const offset = ERA_OFFSET[letter];
+  if (offset == null) return null;
+  const year = offset + eraYear;
+  return month != null ? `${year}/${month}` : `${year}`;
+}
+
+// テキスト全体を受け取り、和暦(S/H/R)表記から西暦表記（単一 or 範囲）へ変換する。
+// 変換できる和暦表記が見つからない場合は null を返す。
+export function convertToSeireki(rawText) {
+  const normalized = normalizeText(rawText);
+  const warekiStrings = extractWarekiStrings(normalized);
+  const converted = warekiStrings
+    .map(parseWarekiString)
+    .filter(Boolean)
+    .map(eraToSeireki)
+    .filter(Boolean);
+
+  if (converted.length === 0) return null;
+  if (converted.length === 1) return converted[0];
+  return `${converted[0]}～${converted[converted.length - 1]}`;
+}
+
+// 西暦→和暦を優先して試し、見つからなければ和暦→西暦を試す。
+// どちらの日付らしき表記も見つからない場合は null。
+export function convertEra(rawText) {
+  const toWareki = convertToWareki(rawText);
+  if (toWareki) return { direction: 'toWareki', result: toWareki };
+
+  const toSeireki = convertToSeireki(rawText);
+  if (toSeireki) return { direction: 'toSeireki', result: toSeireki };
+
+  return null;
+}
+
 // 1つの西暦年に対応する元号区間を返す（境界年は複数区間になる）。
 // toEra() の境界判定（1926/1989/2019）と揃えている。
 function buildEraSegmentsForYear(year) {
