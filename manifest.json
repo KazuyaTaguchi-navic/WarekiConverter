@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "西暦⇔和暦(S/H/R) 変換ツール",
+  "version": "1.0.0",
+  "description": "選択したテキストの年式表記（全角/半角・年月・スラッシュ・範囲）を和暦(S/H/R)表記に変換してクリップボードにコピーします。西暦/和暦早見表も表示します。",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "西暦⇔和暦 変換ツール"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["activeTab", "scripting", "clipboardWrite"]
+}

@@ -1,0 +1,188 @@
+:root {
+  color-scheme: light;
+  --navy: #1a2a4a;
+  --gold: #d4af37;
+  --bg: #ffffff;
+  --border: #d7dbe3;
+  --text: #1f2430;
+  --muted: #6b7280;
+  --success: #1a7f37;
+  --error: #c0392b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  width: 340px;
+  margin: 0;
+  font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.panel {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel.compact {
+  padding-bottom: 8px;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.title-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+h2 {
+  font-size: 12px;
+  margin: 0 0 6px;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.row:last-of-type {
+  margin-bottom: 0;
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+input[type="text"]:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: -1px;
+}
+
+#output-text {
+  font-weight: 600;
+  background: #f7f8fa;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 12px;
+  background: var(--navy);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+button:hover {
+  background: #26406e;
+}
+
+#copy-btn {
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 600;
+}
+
+#copy-btn:hover {
+  background: #c29d2a;
+}
+
+.status {
+  min-height: 14px;
+  font-size: 11px;
+  margin: 4px 0 0;
+}
+
+.status.success { color: var(--success); }
+.status.error { color: var(--error); }
+
+.era-table-wrap {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--navy);
+  color: #fff;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+thead th:nth-child(1) { width: 22%; }
+thead th:nth-child(2) { width: 38%; }
+thead th:nth-child(3) { width: 22%; }
+thead th:nth-child(4) { width: 18%; }
+
+tbody td {
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+tbody td:hover {
+  background: #eef2fb;
+}
+
+tbody td:active {
+  background: #dbe4f7;
+}
+
+tbody tr:nth-child(even) {
+  background: #f7f8fa;
+}
+
+tbody tr.current-year td {
+  background: #fff6dd;
+  font-weight: 600;
+}
+
+tbody tr.current-year td:hover {
+  background: #ffedb0;
+}

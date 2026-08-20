@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>西暦⇔和暦 変換ツール</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <section class="panel compact">
+    <div class="titlebar">
+      <span class="title-mark">⇔</span>
+      <span>西暦⇔和暦（S/H/R）変換</span>
+    </div>
+
+    <div class="row">
+      <input id="input-text" type="text" placeholder="例: 2007年3月～2024年10月（選択テキストを自動取得／手動入力も可）" />
+      <button id="convert-btn" type="button">変換</button>
+    </div>
+
+    <div class="row">
+      <input id="output-text" type="text" readonly placeholder="変換結果" />
+      <button id="copy-btn" type="button" title="変換結果をコピー">コピー</button>
+    </div>
+
+    <p id="status" class="status" aria-live="polite"></p>
+  </section>
+
+  <section class="panel">
+    <h2>西暦/和暦 早見表 <span class="hint">（クリックでコピー）</span></h2>
+    <div id="era-table-wrap" class="era-table-wrap">
+      <table id="era-table">
+        <thead>
+          <tr><th>西暦</th><th>和暦</th><th>S/H/R</th><th>年齢</th></tr>
+        </thead>
+        <tbody id="era-table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
