@@ -10,9 +10,18 @@ export function normalizeText(input) {
   return s;
 }
 
-// 文字列内から日付らしき断片をすべて抽出する（長い表記を優先して判定）
+// 文字列内から日付らしき断片をすべて抽出する（長い表記を優先して判定）。
+// 末尾の "\d{2}\/\d{2}" は "12/04"（=2012年4月）のような自動車カタログの
+// 2桁年/2桁月表記（西暦の下2桁のみ）。4桁年の各パターンより後ろに置くことで、
+// 4桁年が使われている箇所を誤って2桁として取り出さないようにしている。
 const DATE_PATTERN =
-  /\d{4}年\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月|\d{4}\/\d{1,2}\/\d{1,2}|\d{4}\/\d{1,2}|\d{4}年|\d{4}(?!\d)/g;
+  /\d{4}年\d{1,2}月\d{1,2}日|\d{4}年\d{1,2}月|\d{4}\/\d{1,2}\/\d{1,2}|\d{4}\/\d{1,2}|\d{4}年|\d{4}(?!\d)|(?<!\d)\d{2}\/\d{2}(?!\d)/g;
+
+// 2桁年→4桁年の展開（00-49→2000年代、50-99→1900年代）。
+// 自動車の年式表記で現実的に使われる範囲（1950〜2049年）をカバーする。
+function expandTwoDigitYear(yy) {
+  return yy < 50 ? 2000 + yy : 1900 + yy;
+}
 
 export function extractDateStrings(normalizedText) {
   return normalizedText.match(DATE_PATTERN) || [];
@@ -37,6 +46,9 @@ export function parseDateString(s) {
   }
   if ((m = s.match(/^(\d{4})$/))) {
     return { year: +m[1] };
+  }
+  if ((m = s.match(/^(\d{2})\/(\d{2})$/))) {
+    return { year: expandTwoDigitYear(+m[1]), month: +m[2] };
   }
   return null;
 }

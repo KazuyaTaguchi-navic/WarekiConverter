@@ -37,6 +37,16 @@ test('前後に余分な文字列があっても抽出できる', () => {
   assert.equal(convertToWareki('年式：2007年3月～2024年10月 現在'), 'H19/3～R6/10');
 });
 
+test('2桁年/2桁月の範囲表記を変換する（自動車カタログの例: DIXCEL）', () => {
+  assert.equal(convertToWareki('12/04～21/10'), 'H24/4～R3/10');
+  assert.equal(convertToWareki('17/09～21/10'), 'H29/9～R3/10');
+});
+
+test('2桁年は00-49を2000年代、50-99を1900年代として展開する', () => {
+  assert.equal(convertToWareki('07/01'), 'H19/1');
+  assert.equal(convertToWareki('95/06'), 'H7/6');
+});
+
 test('和暦(略号)から西暦への逆変換ができる（ユーザー報告の例）', () => {
   assert.equal(convertToSeireki('R6/6'), '2024/6');
 });
