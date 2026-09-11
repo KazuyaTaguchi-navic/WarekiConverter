@@ -6,8 +6,37 @@ export function normalizeText(input) {
   let s = String(input);
   s = s.replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0));
   s = s.replace(/／/g, '/');
+  // "2026.06" のような数字間の "." も区切りとして扱う（"．"全角も対象）
+  s = s.replace(/(\d)[.．](\d)/g, '$1/$2');
   s = s.replace(/[\s　]/g, '');
   return s;
+}
+
+// 範囲の区切り記号として扱う文字（～ ~ 〜 各種ダッシュなど）
+const RANGE_SEPARATOR_RE = /[~～〜\-－ー—–‐]/;
+const RANGE_MARK = '～';
+
+// マッチした日付が1件だけの場合に、直前/直後に区切り記号があれば
+// 「開始日のみ（〜現在）」「終了日のみ（〜開始日不明）」の片側範囲とみなす。
+function joinWithOpenRange(normalizedText, pattern, parseFn, formatFn) {
+  const entries = [];
+  for (const m of normalizedText.matchAll(pattern)) {
+    const parsed = parseFn(m[0]);
+    const formatted = parsed && formatFn(parsed);
+    if (formatted) entries.push({ formatted, start: m.index, end: m.index + m[0].length });
+  }
+
+  if (entries.length === 0) return null;
+  if (entries.length > 1) {
+    return `${entries[0].formatted}${RANGE_MARK}${entries[entries.length - 1].formatted}`;
+  }
+
+  const { formatted, start, end } = entries[0];
+  const nextChar = normalizedText[end];
+  const prevChar = start > 0 ? normalizedText[start - 1] : undefined;
+  if (nextChar && RANGE_SEPARATOR_RE.test(nextChar)) return `${formatted}${RANGE_MARK}`;
+  if (prevChar && RANGE_SEPARATOR_RE.test(prevChar)) return `${RANGE_MARK}${formatted}`;
+  return formatted;
 }
 
 // 文字列内から日付らしき断片をすべて抽出する（長い表記を優先して判定）。
@@ -96,16 +125,7 @@ function format(era, eraYear, month) {
 // 見つからない場合は null を返す。
 export function convertToWareki(rawText) {
   const normalized = normalizeText(rawText);
-  const dateStrings = extractDateStrings(normalized);
-  const converted = dateStrings
-    .map(parseDateString)
-    .filter(Boolean)
-    .map(toEra)
-    .filter(Boolean);
-
-  if (converted.length === 0) return null;
-  if (converted.length === 1) return converted[0];
-  return `${converted[0]}～${converted[converted.length - 1]}`;
+  return joinWithOpenRange(normalized, DATE_PATTERN, parseDateString, toEra);
 }
 
 // 和暦(S/H/R)表記を検出するためのパターン（例: "R6", "H19/3", "S64", "R元"）。
@@ -140,16 +160,7 @@ export function eraToSeireki({ letter, eraYear, month }) {
 // 変換できる和暦表記が見つからない場合は null を返す。
 export function convertToSeireki(rawText) {
   const normalized = normalizeText(rawText);
-  const warekiStrings = extractWarekiStrings(normalized);
-  const converted = warekiStrings
-    .map(parseWarekiString)
-    .filter(Boolean)
-    .map(eraToSeireki)
-    .filter(Boolean);
-
-  if (converted.length === 0) return null;
-  if (converted.length === 1) return converted[0];
-  return `${converted[0]}～${converted[converted.length - 1]}`;
+  return joinWithOpenRange(normalized, WAREKI_PATTERN, parseWarekiString, eraToSeireki);
 }
 
 // 西暦→和暦を優先して試し、見つからなければ和暦→西暦を試す。

@@ -37,6 +37,20 @@ test('前後に余分な文字列があっても抽出できる', () => {
   assert.equal(convertToWareki('年式：2007年3月～2024年10月 現在'), 'H19/3～R6/10');
 });
 
+test('ドット区切りの年月表記を変換する', () => {
+  assert.equal(convertToWareki('2024.6'), 'R6/6');
+  assert.equal(convertToWareki('2026.06'), 'R8/6');
+});
+
+test('末尾が区切り記号だけの片側範囲（〜現在）はマークを残して変換する（ユーザー報告の例）', () => {
+  assert.equal(convertToWareki('2026.06-'), 'R8/6～');
+  assert.equal(convertToWareki('2026年6月～'), 'R8/6～');
+});
+
+test('先頭が区切り記号だけの片側範囲（〜終了日のみ）も変換できる', () => {
+  assert.equal(convertToWareki('～2024年10月'), '～R6/10');
+});
+
 test('2桁年/2桁月の範囲表記を変換する（自動車カタログの例: DIXCEL）', () => {
   assert.equal(convertToWareki('12/04～21/10'), 'H24/4～R3/10');
   assert.equal(convertToWareki('17/09～21/10'), 'H29/9～R3/10');
